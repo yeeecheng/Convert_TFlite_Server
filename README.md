@@ -2,5 +2,5 @@
 ## 開啟server
 
 ```cmd
-sudo python3 server.py --ip 127.0.0.1 --port 80
+sudo python3 server.py --ip <ip位址> --port <port> --imgsz<訓練用大小> --batch<訓練用> --epoch<訓練用>
 ```

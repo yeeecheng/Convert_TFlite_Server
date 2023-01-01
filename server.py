@@ -109,9 +109,7 @@ def update_yaml(thread_num,ROOT):
         
 def run_thread(connect,addr,thread_num,ROOT):
     
-    
-   
-    #  # 接收資料
+    ## 接收資料
     receive_service(connect,addr,thread_num,ROOT)
     
     # 刪除原本的訓練檔
@@ -125,6 +123,7 @@ def run_thread(connect,addr,thread_num,ROOT):
             connect.close()
         else:
             print("Delete successfully")
+            
     update_yaml(thread_num,ROOT)
     with open(os.path.join(ROOT,f"./dataset_{thread_num}","./dataset.yaml"),'r',encoding= 'utf-8') as f:
         data = yaml.load(f,Loader=yaml.FullLoader)
@@ -134,7 +133,7 @@ def run_thread(connect,addr,thread_num,ROOT):
     yaml_path = os.path.join(ROOT,f"./dataset_{thread_num}/dataset.yaml")
     weight_path = os.path.join(ROOT,"yolov5s.pt")
     cfg_path =os.path.join(ROOT,"./yolov5/models/yolov5s.yaml")
-    args = f"python3 {train_file_path} --img 320 --batch 16 --epoch 1 --data {yaml_path} --weight {weight_path} --cfg {cfg_path}".split(' ')
+    args = f"python3 {train_file_path} --img {opt.imgsz} --batch {opt.batch} --epoch {opt.epoch} --data {yaml_path} --weight {weight_path} --cfg {cfg_path}".split(' ')
     ret = subprocess.run(args)
 
     export_file_path = os.path.join(ROOT,"./yolov5/export.py")
@@ -142,7 +141,7 @@ def run_thread(connect,addr,thread_num,ROOT):
     weight_path = os.path.join(ROOT,"./yolov5/runs/train/exp/weights/best.pt")
 
     # 執行 yolov5 export.py 轉成edgetpu.tflite
-    args = f"python3 {export_file_path} --weight {weight_path} --data {yaml_path} --img 320 --include edgetpu".split(" ")
+    args = f"python3 {export_file_path} --weight {weight_path} --data {yaml_path} --img {opt.imgsz} --include edgetpu".split(" ")
     ret = subprocess.run(args)
     
             
@@ -211,6 +210,9 @@ def parse_opt(known=False):
     parser.add_argument("--root",type=str , default=ROOT )
     parser.add_argument("--ip",type=str ,required=True) 
     parser.add_argument("--port",type=int,required=True)
+    parser.add_argument("--imgsz",type=int,default=320)
+    parser.add_argument("--epoch",type=int,default=5)
+    parser.add_argument("--batch",type=int,default=16)
   
     return parser.parse_args()[0] if known else parser.parse_args()
 
